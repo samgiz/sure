@@ -69,7 +69,8 @@ class BalanceSheet::AccountTotals
       shares_version = user ? AccountShare.where(user: user).maximum(:updated_at)&.to_i : nil
       family.build_cache_key(
         [ "balance_sheet_account_ids", user&.id, shares_version ].compact.join("_"),
-        invalidate_on_data_updates: true
+        invalidate_on_data_updates: true,
+        view_scoped: true
       )
     end
 

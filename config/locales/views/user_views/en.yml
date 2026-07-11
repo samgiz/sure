@@ -1,0 +1,44 @@
+---
+en:
+  user_views:
+    create:
+      created: View created and activated
+    update:
+      updated: View saved
+    destroy:
+      destroyed: View deleted
+    index:
+      title: Account views
+      description: Saved account/owner filters. Activate one to scope the dashboard, sidebar totals, and balance sheet to just the accounts and owners it selects.
+      new: New view
+      saved_views: Saved views
+      empty: You haven't created any views yet.
+      activate: Activate
+      edit: Edit
+      confirm_delete: Delete this view?
+      account_count:
+        one: "%{count} account"
+        other: "%{count} accounts"
+        zero: any account
+      owner_count:
+        one: "%{count} owner"
+        other: "%{count} owners"
+        zero: any owner
+    new:
+      title: New view
+    edit:
+      title: Edit view
+    form:
+      name: Name
+      name_placeholder: e.g. My personal, Joint household, Kids
+      accounts: Accounts
+      accounts_hint: Leave all unchecked to include every account you can see.
+      owners: Owners
+      owners_hint: Filter to accounts owned by specific users. Leave unchecked to include any owner.
+      select_all: Select all
+      select_group: Select group
+      create: Create view
+      update: Save changes
+    picker:
+      all_accounts: All accounts
+      manage: Manage views

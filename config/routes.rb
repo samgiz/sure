@@ -470,6 +470,11 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :user_views, except: %i[show] do
+    member { post :activate }
+    collection { post :clear }
+  end
+
   resources :accounts, only: %i[index new show destroy], shallow: true do
     member do
       post :sync

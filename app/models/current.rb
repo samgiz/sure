@@ -3,6 +3,12 @@ class Current < ActiveSupport::CurrentAttributes
 
   attribute :session
 
+  # The user-selected view that filters which accounts are shown in dashboard /
+  # sidebar / balance sheet contexts. Nil = "no filter, show everything the
+  # user can access." Set by ApplicationController from session[:active_view_id]
+  # on every request.
+  attribute :active_view
+
   delegate :family, to: :user, allow_nil: true
 
   def user

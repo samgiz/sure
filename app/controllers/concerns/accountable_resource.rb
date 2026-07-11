@@ -41,11 +41,22 @@ module AccountableResource
       nil
     end || (Time.zone.today - 2.years)
     Account.transaction do
-      @account = Current.family.accounts.create_and_sync(
+      # Use `unscoped_accounts` — creation goes around the active-view filter
+      # so we don't pass an id-constrained scope into `create_and_sync`.
+      @account = Current.family.unscoped_accounts.create_and_sync(
         account_params.except(:return_to, :opening_balance_date).merge(owner: Current.user),
         opening_balance_date: opening_balance_date
       )
       @account.lock_saved_attributes!
+
+      # If the user was on an account_ids-based view (a specific-set filter),
+      # auto-add the new account so it's visible in the view they just created
+      # it under. Owner-based views don't need this — the new account will
+      # naturally appear (or not) based on its owner.
+      view = Current.active_view
+      if view && view.account_ids.present?
+        view.update!(account_ids: view.account_ids + [ @account.id ])
+      end
     end
 
     # Prefer the form-carried return_to, then the session value StoreLocation
@@ -99,11 +110,14 @@ module AccountableResource
     end
 
     def set_account
-      @account = Current.user.accessible_accounts.find(params[:id])
+      # Bypass the active-view filter — direct account URLs (show, edit,
+      # settings) should always resolve if the user can access the account,
+      # regardless of what's currently in the picker.
+      @account = Current.user.accessible_accounts_bypass_view.find(params[:id])
     end
 
     def set_manageable_account
-      @account = Current.user.accessible_accounts.find(params[:id])
+      @account = Current.user.accessible_accounts_bypass_view.find(params[:id])
       require_account_permission!(@account)
     end
 
