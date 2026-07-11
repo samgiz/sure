@@ -35,6 +35,7 @@ class User < ApplicationRecord
   has_many :owned_accounts, class_name: "Account", foreign_key: :owner_id
   has_many :account_shares, dependent: :destroy
   has_many :shared_accounts, through: :account_shares, source: :account
+  has_many :user_views, dependent: :destroy
   accepts_nested_attributes_for :family, update_only: true
 
   MFA_BACKUP_CODE_COUNT = 8
@@ -123,6 +124,15 @@ class User < ApplicationRecord
 
   def accessible_accounts
     family.accounts.accessible_by(self)
+  end
+
+  # Bypass the active-view filter for single-record lookups (show / edit /
+  # per-account settings). Rule: aggregations respect the view; direct
+  # lookups by id don't. This lets bookmarks + settings + deep links keep
+  # working when the user has a narrow view active, without silently 404ing
+  # on accounts they own but chose to hide from the dashboard.
+  def accessible_accounts_bypass_view
+    family.unscoped_accounts.accessible_by(self)
   end
 
   def finance_accounts

@@ -1,0 +1,97 @@
+<%# locals: (user_view:) %>
+
+<%= styled_form_with model: user_view,
+      class: "space-y-6",
+      data: { turbo_frame: :_top, controller: "user-view-form" } do |f| %>
+
+  <section class="space-y-2">
+    <label class="block text-sm font-medium text-primary">
+      <%= t(".name") %>
+    </label>
+    <div class="relative flex items-center border border-secondary rounded-lg text-subdued">
+      <%= f.text_field :name, placeholder: t(".name_placeholder"), required: true, autofocus: true %>
+    </div>
+    <% if user_view.errors[:name].any? %>
+      <p class="text-destructive text-xs"><%= user_view.errors[:name].to_sentence %></p>
+    <% end %>
+  </section>
+
+  <%
+    # Use `unscoped_accounts` so the checkbox picker shows EVERY account the
+    # user can access, not just those matching the currently-active view.
+    # Without this you'd be unable to add accounts outside your current filter
+    # to a new view — a chicken-and-egg problem.
+    accounts_by_group = Current.family.unscoped_accounts.visible
+                          .accessible_by(Current.user)
+                          .order(:accountable_type, :name)
+                          .group_by(&:accountable_type)
+    users_in_family   = Current.family.users.order(:email)
+  %>
+
+  <section class="space-y-3">
+    <div class="flex items-center justify-between">
+      <label class="block text-sm font-medium text-primary">
+        <%= t(".accounts") %>
+      </label>
+      <button type="button"
+              class="text-xs text-link"
+              data-action="click->user-view-form#toggleAll"
+              data-user-view-form-target="allBtn"
+              data-target-name="account_ids">
+        <%= t(".select_all") %>
+      </button>
+    </div>
+    <p class="text-xs text-secondary"><%= t(".accounts_hint") %></p>
+
+    <div class="space-y-3">
+      <% accounts_by_group.each do |type, accounts| %>
+        <div class="border border-secondary rounded-lg overflow-hidden">
+          <div class="flex items-center justify-between px-3 py-2 bg-container-inset">
+            <span class="text-xs font-medium uppercase text-secondary"><%= type %></span>
+            <button type="button"
+                    class="text-xs text-link"
+                    data-action="click->user-view-form#toggleGroup"
+                    data-group-name="<%= type %>">
+              <%= t(".select_group") %>
+            </button>
+          </div>
+          <div class="p-3 space-y-1">
+            <% accounts.each do |a| %>
+              <label class="flex items-center gap-2 py-1 cursor-pointer">
+                <%= check_box_tag "user_view[account_ids][]", a.id,
+                    user_view.account_ids.include?(a.id),
+                    class: "user-view-account",
+                    data: { "user-view-form-target": "accountCheckbox", group: a.accountable_type } %>
+                <span class="text-sm text-primary"><%= a.name %></span>
+                <span class="text-xs text-secondary ml-auto">
+                  <%= number_to_currency(a.balance, unit: "") %> <%= a.currency %>
+                </span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="space-y-3">
+    <label class="block text-sm font-medium text-primary">
+      <%= t(".owners") %>
+    </label>
+    <p class="text-xs text-secondary"><%= t(".owners_hint") %></p>
+    <div class="flex flex-wrap gap-2">
+      <% users_in_family.each do |u| %>
+        <label class="inline-flex items-center gap-2 border border-secondary rounded-full px-3 py-1.5 cursor-pointer">
+          <%= check_box_tag "user_view[owner_ids][]", u.id,
+              user_view.owner_ids.include?(u.id),
+              data: { "user-view-form-target": "ownerCheckbox" } %>
+          <span class="text-sm text-primary"><%= u.email %></span>
+        </label>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="flex justify-end">
+    <%= f.submit t(user_view.new_record? ? ".create" : ".update"), class: "btn btn-primary" %>
+  </section>
+<% end %>

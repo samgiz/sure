@@ -25,11 +25,13 @@ class BalanceSheet::SyncStatusMonitor
 
     # We re-fetch the set of syncing IDs any time a sync that belongs to the family is started or completed.
     # This ensures we're always fetching the latest sync statuses without re-querying on every page load in idle times (no syncs happening).
+    # `view_scoped: true` so switching views busts the cache — the underlying
+    # query goes through `family.accounts` (view-filtered), so the cached set
+    # of syncing account IDs differs per view.
     def cache_key
-      [
-        "balance_sheet_sync_status",
-        family.id,
-        family.latest_sync_activity_at
-      ].join("_")
+      family.build_cache_key(
+        [ "balance_sheet_sync_status", family.latest_sync_activity_at ].join("_"),
+        view_scoped: true
+      )
     end
 end

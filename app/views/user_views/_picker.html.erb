@@ -1,0 +1,45 @@
+<%# Sidebar picker for the user's saved views. Uses the design system's
+    DS::Menu component so it inherits keyboard navigation, focus management,
+    ARIA roles, and consistent styling with the rest of the app.
+    Renders the current filter as the button label, then a menu of "All
+    accounts" + each saved view + a link to manage. %>
+
+<% views = user_views_for_picker %>
+<% active = active_view %>
+
+<div id="user-view-picker" class="border-b border-secondary p-3">
+  <%= render DS::Menu.new(variant: "button", placement: "bottom-start", max_width: "260px", mobile_fullwidth: false) do |menu| %>
+    <% menu.with_button(class: "w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-container-inset text-sm text-primary hover:bg-container-hover") do %>
+      <span class="flex items-center gap-2 truncate">
+        <%= icon "filter", size: "sm" %>
+        <span class="font-medium truncate">
+          <%= active ? active.name : t("user_views.picker.all_accounts") %>
+        </span>
+      </span>
+      <%= icon "chevron-down", size: "sm" %>
+    <% end %>
+
+    <%# "All accounts" — clears any active filter. %>
+    <% menu.with_item(
+         variant: "button",
+         text: t("user_views.picker.all_accounts"),
+         href: clear_user_views_path,
+         method: :post,
+         selected: active.nil?) %>
+
+    <% views.each do |v| %>
+      <% menu.with_item(
+           variant: "button",
+           text: v.name,
+           href: activate_user_view_path(v),
+           method: :post,
+           selected: active&.id == v.id) %>
+    <% end %>
+
+    <% menu.with_item(
+         variant: "link",
+         text: t("user_views.picker.manage"),
+         icon: "settings",
+         href: user_views_path) %>
+  <% end %>
+</div>

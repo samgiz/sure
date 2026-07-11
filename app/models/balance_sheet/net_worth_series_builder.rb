@@ -54,7 +54,8 @@ class BalanceSheet::NetWorthSeriesBuilder
 
       family.build_cache_key(
         key,
-        invalidate_on_data_updates: true
+        invalidate_on_data_updates: true,
+        view_scoped: true
       )
     end
 end

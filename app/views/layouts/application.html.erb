@@ -117,6 +117,7 @@ end %>
           <%= yield :sidebar %>
         <% else %>
           <div class="grow">
+            <%= render "user_views/picker" if Current.user %>
             <%= render "accounts/account_sidebar_tabs", family: Current.family, active_tab: @account_group_tab %>
           </div>
 

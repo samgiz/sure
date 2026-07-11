@@ -1,0 +1,59 @@
+<%= content_for :page_title, t(".title") %>
+<%= content_for :page_actions do %>
+  <%= render DS::Link.new(
+    text: t(".new"),
+    variant: "primary",
+    href: new_user_view_path,
+    icon: "plus",
+    frame: :modal
+  ) %>
+<% end %>
+
+<div class="bg-container rounded-xl shadow-border-xs p-4 space-y-4">
+  <p class="text-sm text-secondary">
+    <%= t(".description") %>
+  </p>
+
+  <% if @user_views.any? %>
+    <div class="rounded-xl bg-container-inset space-y-1 p-1">
+      <div class="flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-secondary uppercase">
+        <p><%= t(".saved_views") %></p>
+        <span class="text-subdued">&middot;</span>
+        <p><%= @user_views.count %></p>
+      </div>
+      <% @user_views.each do |view| %>
+        <div class="flex items-center justify-between px-4 py-3 rounded-lg bg-container">
+          <div class="flex items-center gap-3">
+            <% if Current.active_view&.id == view.id %>
+              <%= icon "check-circle", size: "sm", class: "text-success" %>
+            <% else %>
+              <%= icon "circle", size: "sm", class: "text-subdued" %>
+            <% end %>
+            <div>
+              <p class="text-sm font-medium text-primary"><%= view.name %></p>
+              <p class="text-xs text-secondary">
+                <%= t(".account_count", count: view.account_ids.length) %>
+                &middot;
+                <%= t(".owner_count", count: view.owner_ids.length) %>
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <% if Current.active_view&.id != view.id %>
+              <%= button_to activate_user_view_path(view), class: "btn btn-secondary text-sm" do %>
+                <%= t(".activate") %>
+              <% end %>
+            <% end %>
+            <%= render DS::Link.new(text: t(".edit"), href: edit_user_view_path(view), frame: :modal, variant: "secondary") %>
+            <%= button_to user_view_path(view), method: :delete, class: "btn btn-danger text-sm",
+                data: { confirm: t(".confirm_delete") } do %>
+              <%= icon "trash-2", size: "sm" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-sm text-secondary italic"><%= t(".empty") %></p>
+  <% end %>
+</div>

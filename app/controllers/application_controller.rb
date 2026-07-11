@@ -15,8 +15,10 @@ class ApplicationController < ActionController::Base
   before_action :detect_os
   before_action :set_default_chat
   before_action :set_active_storage_url_options
+  before_action :load_active_view
 
-  helper_method :demo_config, :demo_host_match?, :show_demo_warning?
+  helper_method :demo_config, :demo_host_match?, :show_demo_warning?,
+                :active_view, :user_views_for_picker
 
   private
     def accept_pending_invitation_for(user)
@@ -103,4 +105,25 @@ class ApplicationController < ActionController::Base
       Current.finance_accounts
     end
     helper_method :finance_accounts
+
+    # Reads session[:active_view_id] and populates Current.active_view. Silent
+    # no-op when the id is stale or the referenced view was deleted; downstream
+    # code treats Current.active_view.nil? as "no filter."
+    def load_active_view
+      return unless Current.user
+      id = session[:active_view_id]
+      return if id.blank?
+      Current.active_view = Current.user.user_views.find_by(id: id)
+      # Clean up the session if the view was deleted since it was activated.
+      session.delete(:active_view_id) unless Current.active_view
+    end
+
+
+    def active_view
+      Current.active_view
+    end
+
+    def user_views_for_picker
+      Current.user&.user_views&.alphabetically || UserView.none
+    end
 end

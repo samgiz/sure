@@ -28,6 +28,19 @@ class Family < ApplicationRecord
 
   has_many :users, dependent: :destroy
   has_many :accounts, dependent: :destroy
+  # ALL account access outside associations goes through `Family#accounts`.
+  # We wrap it to apply the current request's active view filter, so every
+  # downstream consumer (balance sheet, income statement, sidebar, reports,
+  # transactions search, sync aggregates, etc.) automatically respects the
+  # user's picker selection without per-place patches. The `unscoped_accounts`
+  # escape hatch is available for internal code paths (settings, sync) that
+  # need to see the true unfiltered set.
+  alias_method :unscoped_accounts, :accounts
+  def accounts
+    scope = unscoped_accounts
+    return scope unless Current.active_view && !Current.active_view.empty?
+    Current.active_view.scope_accounts(scope)
+  end
   has_many :invitations, dependent: :destroy
 
   has_many :imports, dependent: :destroy
@@ -385,16 +398,25 @@ class Family < ApplicationRecord
     entries.order(:date).first&.date || Date.current
   end
 
-  # Used for invalidating family / balance sheet related aggregation queries
-  def build_cache_key(key, invalidate_on_data_updates: false)
+  # Used for invalidating family / balance sheet related aggregation queries.
+  #
+  # Pass `view_scoped: true` on any cache whose computed VALUE depends on
+  # the currently-active user-view filter (dashboard totals, sidebar tabs,
+  # net-worth series, sync status). This appends `Current.active_view&.id`
+  # to the key so switching views naturally busts the cache. Not passing it
+  # is safe for account-inherent caches (per-account sparklines, per-security
+  # prices, etc.) where the view never changes the result.
+  def build_cache_key(key, invalidate_on_data_updates: false, view_scoped: false)
     # Our data sync process updates this timestamp whenever any family account successfully completes a data update.
     # By including it in the cache key, we can expire caches every time family account data changes.
     data_invalidation_key = invalidate_on_data_updates ? latest_sync_completed_at : nil
+    view_key = view_scoped ? Current.active_view&.id : nil
 
     [
       id,
       key,
       data_invalidation_key,
+      view_key,
       accounts.maximum(:updated_at)
     ].compact.join("_")
   end
