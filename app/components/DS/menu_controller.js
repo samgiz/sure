@@ -51,6 +51,14 @@ export default class extends Controller {
   }
 
   handleTurboLoad = () => {
+    // Sure runs Turbo Morph (config in layouts/shared/_head.html.erb), which
+    // preserves this controller instance across navigations along with its
+    // in-memory `this.show`. Meanwhile the DOM's `hidden` class is authoritatively
+    // reset by morph to whatever the server rendered. Without re-syncing here,
+    // a menu that was open before a nav produces a stale `this.show === true`
+    // against a DOM-hidden panel — making the first click after nav appear
+    // to consume nothing (it's actually running the close path).
+    this.show = !this.contentTarget.classList.contains("hidden");
     if (!this.show) this.close();
   };
 
@@ -102,13 +110,21 @@ export default class extends Controller {
     items[nextIndex].focus();
   };
 
-  toggle = () => {
+  toggle = async () => {
     this.show = !this.show;
-    this.contentTarget.classList.toggle("hidden", !this.show);
     this.buttonTarget.setAttribute("aria-expanded", this.show.toString());
     if (this.show) {
-      this.update();
+      // Position the content BEFORE revealing it. `computePosition` is async;
+      // if we removed the `hidden` class first, the browser would paint one
+      // frame with the element at its CSS-default position (viewport 0,0
+      // under `position: fixed`) before floating-ui's promise resolves and
+      // sets the real `left`/`top`. Visible as a flash / misalign on the
+      // first open after the content was hidden.
+      await this.update();
+      this.contentTarget.classList.remove("hidden");
       this.#focusFirstMenuItem();
+    } else {
+      this.contentTarget.classList.add("hidden");
     }
   };
 
@@ -154,12 +170,16 @@ export default class extends Controller {
   }
 
   update() {
-    if (!this.buttonTarget || !this.contentTarget) return;
+    if (!this.buttonTarget || !this.contentTarget) return Promise.resolve();
 
     const isSmallScreen = !window.matchMedia("(min-width: 768px)").matches;
     const useMobileFullwidth = isSmallScreen && this.mobileFullwidthValue;
 
-    computePosition(this.buttonTarget, this.contentTarget, {
+    // Return the promise so `toggle()` can await positioning before revealing
+    // the panel — otherwise the first open after the panel was hidden paints
+    // one frame at the CSS-default position (viewport 0,0) before floating-ui
+    // resolves and applies the real left/top.
+    return computePosition(this.buttonTarget, this.contentTarget, {
       placement: useMobileFullwidth ? "bottom" : this.placementValue,
       middleware: [offset(this.offsetValue), flip({ padding: 5 }), shift({ padding: 5 })],
       strategy: "fixed",
