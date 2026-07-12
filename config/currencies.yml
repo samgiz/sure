@@ -26,6 +26,20 @@ eur:
   delimiter: "."
   default_format: "%u%n"
   default_precision: 2
+ltl:
+  name: Lithuanian Litas
+  priority: 100
+  iso_code: LTL
+  iso_numeric: "440"
+  html_code: "Lt"
+  symbol: "Lt"
+  minor_unit: Centas
+  minor_unit_conversion: 100
+  smallest_denomination: 1
+  separator: ","
+  delimiter: " "
+  default_format: "%n %u"
+  default_precision: 2
 gbp:
   name: British Pound
   priority: 3
