@@ -776,6 +776,7 @@ class Account::ProviderImportAdapter
         OR (transactions.extra -> 'plaid' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'lunchflow' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'enable_banking' ->> 'pending')::boolean = true
+        OR (transactions.extra -> 'enable_banking2' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'akahu' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'up' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'mercury' ->> 'pending')::boolean = true
@@ -826,6 +827,7 @@ class Account::ProviderImportAdapter
         OR (transactions.extra -> 'plaid' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'lunchflow' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'enable_banking' ->> 'pending')::boolean = true
+        OR (transactions.extra -> 'enable_banking2' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'akahu' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'up' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'mercury' ->> 'pending')::boolean = true
@@ -899,6 +901,7 @@ class Account::ProviderImportAdapter
         OR (transactions.extra -> 'plaid' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'lunchflow' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'enable_banking' ->> 'pending')::boolean = true
+        OR (transactions.extra -> 'enable_banking2' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'akahu' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'up' ->> 'pending')::boolean = true
         OR (transactions.extra -> 'mercury' ->> 'pending')::boolean = true

@@ -11,6 +11,7 @@ class DataEnrichment < ApplicationRecord
     synth: "synth",
     ai: "ai",
     enable_banking: "enable_banking",
+    enable_banking2: "enable_banking2",
     coinstats: "coinstats",
     mercury: "mercury",
     brex: "brex",
