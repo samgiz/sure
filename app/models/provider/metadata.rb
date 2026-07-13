@@ -6,6 +6,7 @@ class Provider
       lunchflow:      { region: "Global",  kinds: %w[Bank],            maturity: :stable, logo_text: "LF", logo_bg: "bg-orange-500" },
       up:             { region: "AU",      kinds: %w[Bank],            maturity: :beta,   logo_text: "UP", logo_bg: "bg-orange-600" },
       enable_banking: { region: "EU",      kinds: %w[Bank],            maturity: :beta,   logo_text: "EB", logo_bg: "bg-purple-600" },
+      enable_banking2: { region: "EU",     kinds: %w[Bank],            maturity: :beta,   logo_text: "E2", logo_bg: "bg-purple-700", name: "Enable Banking 2" },
       coinstats:      { region: "Global",  kinds: %w[Crypto],          maturity: :beta,   logo_text: "CS", logo_bg: "bg-pink-600" },
       mercury:        { region: "US",      kinds: %w[Bank],            maturity: :beta,   logo_text: "ME", logo_bg: "bg-cyan-600" },
       brex:           { region: "US",      kinds: %w[Bank],            maturity: :beta,   logo_text: "BX", logo_bg: "bg-emerald-600" },

@@ -18,6 +18,7 @@ class AccountsController < ApplicationController
     @akahu_items = visible_provider_items(family.akahu_items.ordered.includes(:syncs, :akahu_accounts))
     @up_items = visible_provider_items(family.up_items.ordered.includes(:syncs, :up_accounts))
     @enable_banking_items = visible_provider_items(family.enable_banking_items.ordered.includes(:syncs))
+    @enable_banking2_items = visible_provider_items(family.enable_banking2_items.ordered.includes(:syncs))
     @coinstats_items = visible_provider_items(family.coinstats_items.ordered.includes(:coinstats_accounts, :accounts, :syncs))
     @mercury_items = visible_provider_items(family.mercury_items.ordered.includes(:syncs, :mercury_accounts))
     @brex_items = visible_provider_items(family.brex_items.ordered.includes(:accounts, :syncs, brex_accounts: :account_provider))
@@ -358,6 +359,15 @@ class AccountsController < ApplicationController
         latest_sync = item.syncs.ordered.first
         @enable_banking_sync_stats_map[item.id] = latest_sync&.sync_stats || {}
         @enable_banking_latest_sync_error_map[item.id] = latest_sync&.error
+      end
+
+      # Enable Banking 2 sync stats
+      @enable_banking2_sync_stats_map = {}
+      @enable_banking2_latest_sync_error_map = {}
+      @enable_banking2_items.each do |item|
+        latest_sync = item.syncs.ordered.first
+        @enable_banking2_sync_stats_map[item.id] = latest_sync&.sync_stats || {}
+        @enable_banking2_latest_sync_error_map[item.id] = latest_sync&.error
       end
 
       # CoinStats sync stats

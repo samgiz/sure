@@ -280,6 +280,40 @@ class Account < ApplicationRecord
       )
     end
 
+    def create_from_enable_banking2_account(enable_banking2_account, account_type, subtype = nil)
+      # Get the balance from Enable Banking
+      balance = enable_banking2_account.current_balance || 0
+
+      # Enable Banking may return negative balances for liabilities
+      # Sure expects positive balances for liabilities
+      if account_type == "CreditCard" || account_type == "Loan"
+        balance = balance.abs
+      end
+
+      cash_balance = balance
+
+      family = enable_banking2_account.enable_banking2_item.family
+      attributes = {
+        family: family,
+        name: enable_banking2_account.name,
+        balance: balance,
+        cash_balance: cash_balance,
+        currency: enable_banking2_account.currency || "EUR"
+      }
+
+      accountable_attributes = {}
+      accountable_attributes[:subtype] = subtype if subtype.present?
+
+      # Skip initial sync - provider sync will handle balance creation with correct currency
+      create_and_sync(
+        attributes.merge(
+          accountable_type: account_type,
+          accountable_attributes: accountable_attributes
+        ),
+        skip_initial_sync: true
+      )
+    end
+
     def create_from_coinbase_account(coinbase_account)
       # All Coinbase accounts are crypto exchange accounts
       family = coinbase_account.coinbase_item.family

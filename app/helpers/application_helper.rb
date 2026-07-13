@@ -194,6 +194,12 @@ module ApplicationHelper
     ENV.fetch("DEV_WEBHOOKS_URL", root_url).chomp("/") + "/enable_banking_items/callback"
   end
 
+  def enable_banking2_callback_url
+    return callback_enable_banking2_items_url if Rails.env.production?
+
+    ENV.fetch("DEV_WEBHOOKS_URL", root_url).chomp("/") + "/enable_banking2_items/callback"
+  end
+
   # Formats quantity with adaptive precision based on the value size.
   # Shows more decimal places for small quantities (common with crypto).
   #

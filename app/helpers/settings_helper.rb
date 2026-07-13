@@ -72,6 +72,9 @@ module SettingsHelper
     when "enable_banking"
       return { status: :off } unless @enable_banking_items&.any?
       enable_banking_summary
+    when "enable_banking2"
+      return { status: :off } unless @enable_banking2_items&.any?
+      enable_banking2_summary
     when "coinstats"
       return { status: :off } unless @coinstats_items&.any?
       sync_based_summary(key)
@@ -190,6 +193,37 @@ module SettingsHelper
       return { status: :err, meta: t("settings.providers.meta.sync_error"), last_synced_at: nil } if health[:error]
 
       valid_items = @enable_banking_items&.select(&:session_valid?) || []
+
+      # All items have expired/missing sessions — need re-authorization
+      if valid_items.empty?
+        return { status: :warn, meta: t("settings.providers.meta.reconsent_required"), last_synced_at: last_synced_at }
+      end
+
+      expiring = valid_items.find do |item|
+        item.session_expires_at.present? && item.session_expires_at < 7.days.from_now
+      end
+
+      if expiring
+        days = [ ((expiring.session_expires_at - Time.current) / 1.day).ceil, 1 ].max
+        return { status: :warn, meta: t("settings.providers.meta.reconsent_needed", count: days), last_synced_at: last_synced_at }
+      end
+
+      return { status: :warn, meta: t("settings.providers.meta.no_recent_sync"), last_synced_at: last_synced_at } if health[:stale]
+
+      if last_synced_at.present?
+        { status: :ok, meta: t("settings.providers.meta.last_synced", time: concise_time_ago(last_synced_at)), last_synced_at: last_synced_at }
+      else
+        { status: :ok, last_synced_at: nil }
+      end
+    end
+
+    def enable_banking2_summary
+      health = @provider_sync_health&.dig("enable_banking2") || {}
+      last_synced_at = health[:last_synced_at]
+
+      return { status: :err, meta: t("settings.providers.meta.sync_error"), last_synced_at: nil } if health[:error]
+
+      valid_items = @enable_banking2_items&.select(&:session_valid?) || []
 
       # All items have expired/missing sessions — need re-authorization
       if valid_items.empty?

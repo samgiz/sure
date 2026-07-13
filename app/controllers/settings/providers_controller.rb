@@ -187,6 +187,7 @@ class Settings::ProvidersController < ApplicationController
       { key: "lunchflow",      title: "Lunch Flow",      turbo_id: "lunchflow",      partial: "lunchflow_panel" },
       { key: "simplefin",      title: "SimpleFIN",       turbo_id: "simplefin",      partial: "simplefin_panel" },
       { key: "enable_banking", title: "Enable Banking",  turbo_id: "enable_banking", partial: "enable_banking_panel" },
+      { key: "enable_banking2", title: "Enable Banking 2", turbo_id: "enable_banking2", partial: "enable_banking2_panel" },
       { key: "coinstats",      title: "CoinStats",       turbo_id: "coinstats",      partial: "coinstats_panel" },
       { key: "mercury",        title: "Mercury",         turbo_id: "mercury",        partial: "mercury_panel" },
       { key: "brex",           title: "Brex",            turbo_id: "brex",           partial: "brex_panel" },
@@ -209,6 +210,7 @@ class Settings::ProvidersController < ApplicationController
       "simplefin"      => "SimplefinItem",
       "lunchflow"      => "LunchflowItem",
       "enable_banking" => "EnableBankingItem",
+      "enable_banking2" => "EnableBanking2Item",
       "coinstats"      => "CoinstatsItem",
       "mercury"        => "MercuryItem",
       "brex"           => "BrexItem",
@@ -234,6 +236,8 @@ class Settings::ProvidersController < ApplicationController
         @lunchflow_items = Current.family.lunchflow_items.ordered
       when "enable_banking"
         @enable_banking_items = Current.family.enable_banking_items.ordered
+      when "enable_banking2"
+        @enable_banking2_items = Current.family.enable_banking2_items.ordered
       when "coinstats"
         @coinstats_items = Current.family.coinstats_items.ordered
       when "mercury"
@@ -273,6 +277,7 @@ class Settings::ProvidersController < ApplicationController
       @simplefin_items = Current.family.simplefin_items.where.not(access_url: [ nil, "" ]).ordered.select(:id)
       @lunchflow_items = Current.family.lunchflow_items.where.not(api_key: [ nil, "" ]).ordered.select(:id)
       @enable_banking_items = Current.family.enable_banking_items.ordered # Enable Banking panel needs session info for status display
+      @enable_banking2_items = Current.family.enable_banking2_items.ordered # Enable Banking 2 panel needs session info for status display
       # Providers page only needs to know whether any Sophtron connections exist with valid credentials
       @sophtron_items = Current.family.sophtron_items.where.not(user_id: [ nil, "" ], access_key: [ nil, "" ]).ordered.select(:id)
       @coinstats_items = Current.family.coinstats_items.ordered # CoinStats panel needs account info for status display
@@ -307,6 +312,7 @@ class Settings::ProvidersController < ApplicationController
         "simplefin"      => @simplefin_items,
         "lunchflow"      => @lunchflow_items,
         "enable_banking" => @enable_banking_items,
+        "enable_banking2" => @enable_banking2_items,
         "coinstats"      => @coinstats_items,
         "mercury"        => @mercury_items,
         "brex"           => @brex_items,

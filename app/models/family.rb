@@ -1,6 +1,6 @@
 class Family < ApplicationRecord
   include Syncable, AutoTransferMatchable, Subscribeable, VectorSearchable
-  include PlaidConnectable, SimplefinConnectable, LunchflowConnectable, AkahuConnectable, EnableBankingConnectable
+  include PlaidConnectable, SimplefinConnectable, LunchflowConnectable, AkahuConnectable, EnableBankingConnectable, EnableBanking2Connectable
   include CoinbaseConnectable, BinanceConnectable, KrakenConnectable, CoinstatsConnectable, SnaptradeConnectable, MercuryConnectable, BrexConnectable, SophtronConnectable
   include IndexaCapitalConnectable, IbkrConnectable
   include UpConnectable
